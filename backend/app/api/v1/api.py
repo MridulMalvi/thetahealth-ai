@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, facilities, operational_state, pharmacy, voice, analytics, supply_chain
+from app.api.v1.endpoints import health, auth, facilities, operational_state, pharmacy, voice, analytics, supply_chain, emergency, copilot
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["Health"])
@@ -10,6 +10,8 @@ api_router.include_router(pharmacy.router, prefix="/pharmacy", tags=["Pharmacy I
 api_router.include_router(voice.router, prefix="/voice", tags=["Theta Voice & Gemini Extraction"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["BigQuery & Vertex AI Forecasting"])
 api_router.include_router(supply_chain.router, prefix="/supply", tags=["Supply Chain Control Tower & Resource Exchange"])
+api_router.include_router(emergency.router, prefix="/emergency", tags=["Emergency Command Mode"])
+api_router.include_router(copilot.router, prefix="/copilot", tags=["Ask Theta AI Copilot"])
 
 
 
