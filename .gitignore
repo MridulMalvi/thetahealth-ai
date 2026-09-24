@@ -1,0 +1,39 @@
+# Python
+.venv/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firebase-credentials.json
+
+# Overview
+project_overview/
+
+# mds
+OVERVIEW.md
+tracks.md
