@@ -25,11 +25,18 @@ Thumbs.db
 *.swp
 *.swo
 
-# Firebase
+# Firebase & GCP Credentials
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
 firebase-credentials.json
+*firebase-credentials*.json
+backend/firebase-credentials.json
+backend/*credentials*.json
+*.pem
+*.key
+.env*
+!.env.example
 
 # Overview
 project_overview/

@@ -3,16 +3,18 @@ import {
   Search,
   Flame,
   Radio,
-  User,
   Shield,
   Sparkles,
+  ChevronDown,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/features/auth/AuthContext"
 
 export function Header() {
   const navigate = useNavigate()
+  const { currentUser, setIsRoleModalOpen } = useAuth()
 
   return (
     <header className="h-16 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-20">
@@ -32,7 +34,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Right: Operational Status, Emergency Action, Alerts, Profile */}
+      {/* Right: Operational Status, Emergency Action, Alerts, Profile & Switcher */}
       <div className="flex items-center gap-3">
         {/* Real-time sync badge */}
         <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
@@ -64,21 +66,26 @@ export function Header() {
 
         <div className="h-4 w-px bg-slate-800" />
 
-        {/* Current Active Role Badge */}
-        <div className="flex items-center gap-2.5 pl-1">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-600/40 to-slate-800 border border-cyan-500/30 flex items-center justify-center text-cyan-300">
+        {/* Current Active Role Switcher Trigger Button */}
+        <button
+          onClick={() => setIsRoleModalOpen(true)}
+          className="group flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-xl border border-slate-800 bg-slate-900/80 hover:border-cyan-500/50 hover:bg-slate-900 transition-all text-left"
+          title="Click to switch active role / persona"
+        >
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-600/30 to-slate-800 border border-cyan-500/30 flex items-center justify-center text-cyan-300 group-hover:scale-105 transition-transform">
             <Shield className="h-4 w-4" />
           </div>
           <div className="hidden md:block text-left">
             <div className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-              <span>National Administrator</span>
+              <span>{currentUser.title}</span>
               <Badge variant="ai" className="text-[9px] px-1 py-0">
-                <Sparkles className="h-2.5 w-2.5 mr-0.5" /> RBAC
+                <Sparkles className="h-2.5 w-2.5 mr-0.5" /> Switch
               </Badge>
             </div>
-            <p className="text-[10px] text-slate-400">dr.admin@thetahealth.gov</p>
+            <p className="text-[10px] text-slate-400 truncate max-w-[140px]">{currentUser.name}</p>
           </div>
-        </div>
+          <ChevronDown className="h-3.5 w-3.5 text-slate-500 group-hover:text-cyan-400 ml-0.5 transition-colors" />
+        </button>
       </div>
     </header>
   )
