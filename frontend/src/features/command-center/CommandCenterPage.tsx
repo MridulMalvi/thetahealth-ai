@@ -16,14 +16,18 @@ import {
   Truck,
   Users,
   Cpu,
+  RefreshCw,
+  Plus,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { useRealtimeSync } from "@/hooks/useRealtimeSync"
 
 export function CommandCenterPage() {
   const navigate = useNavigate()
+  const { transactions, alerts, lastSync, isSyncing, simulateIntake } = useRealtimeSync()
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -37,14 +41,16 @@ export function CommandCenterPage() {
                 <Sparkles className="h-3 w-3 text-cyan-400" />
                 ThetaBrief · Real-time Intelligence
               </Badge>
-              <span className="text-xs text-slate-400">Updated 2m ago</span>
+              <span className="text-xs text-slate-400">
+                Synced {lastSync.toLocaleTimeString()}
+              </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
               National Healthcare Command Center
             </h1>
             <p className="text-sm text-slate-300 leading-relaxed">
               Monitoring 400 healthcare facilities across 10 states. 
-              <span className="text-amber-400 font-medium"> 3 facilities</span> require proactive inventory balancing. 
+              <span className="text-amber-400 font-medium"> {alerts.length} active risk alerts</span> detected in Firestore state. 
               Vertex AI demand models project 
               <span className="text-cyan-400 font-medium"> 94.2% supply chain resilience</span> for the next 14-day horizon.
             </p>
@@ -120,20 +126,20 @@ export function CommandCenterPage() {
         <Card className="hover:border-amber-500/40 transition-all">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Stockout Alerts (&lt;3 Days)
+              Active Alerts ({alerts.length})
             </CardTitle>
             <AlertTriangle className="h-4 w-4 text-amber-400" />
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-amber-400">3</span>
-              <span className="text-xs text-slate-400 font-medium">SKUs flagged</span>
+              <span className="text-2xl font-bold text-amber-400">{alerts.length}</span>
+              <span className="text-xs text-slate-400 font-medium">active alerts</span>
               <Badge variant="warning" className="ml-auto text-[10px]">
                 Action Needed
               </Badge>
             </div>
             <p className="text-[11px] text-slate-400 mt-2">
-              Redistribution recommendation generated
+              Redistribution recommendations ready
             </p>
           </CardContent>
         </Card>
@@ -174,48 +180,44 @@ export function CommandCenterPage() {
               <Badge variant="secondary" className="text-[10px]">Firestore Live</Badge>
             </div>
             <CardDescription>
-              Real-time telemetry from PHCs, Hospitals, and Warehouses.
+              Real-time telemetry stream from PHCs, Hospitals, and Warehouses.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 flex-1">
-            <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-200">PHC Anandpur</span>
-                <span className="text-[10px] text-slate-400">1 min ago</span>
+          <CardContent className="space-y-3 flex-1 overflow-y-auto max-h-[340px]">
+            {transactions.slice(0, 4).map((tx) => (
+              <div
+                key={tx.transaction_id}
+                className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-200">
+                    {tx.facility_id === "FAC-UP-MEE-002" ? "PHC Anandpur" : tx.facility_id === "FAC-UP-MEE-001" ? "District Hospital Meerut" : "Central Medical Warehouse"}
+                  </span>
+                  <Badge variant="outline" className="text-[9px] py-0">{tx.type}</Badge>
+                </div>
+                <p className="text-xs text-slate-400">
+                  <span className="text-cyan-300 font-medium">{tx.quantity} {tx.unit} {tx.medicine_name}</span> ({tx.batch_number}) via {tx.source}.
+                </p>
               </div>
-              <p className="text-xs text-slate-400">
-                Logged <span className="text-cyan-300 font-medium">+150 vials Paracetamol IV</span> via Theta Voice.
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-200">District Hospital Meerut</span>
-                <span className="text-[10px] text-slate-400">4 mins ago</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                ICU Occupancy reached <span className="text-amber-400 font-medium">88% (22/25 beds)</span>.
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-200">Central Medical Warehouse</span>
-                <span className="text-[10px] text-slate-400">12 mins ago</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Dispatched <span className="text-emerald-400 font-medium">Batch #B-9021</span> IV fluids to 8 facilities.
-              </p>
-            </div>
+            ))}
           </CardContent>
-          <div className="p-4 pt-0">
+          <div className="p-4 pt-2 flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => simulateIntake("MEDICINE_RECEIVED")}
+              className="flex-1 text-xs gap-1.5 border-dashed border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Simulate Live Intake Event
+            </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigate("/facilities")}
-              className="w-full text-xs"
+              className="text-xs"
             >
-              View Digital Twin Network
+              Digital Twin
             </Button>
           </div>
         </Card>
@@ -335,7 +337,7 @@ export function CommandCenterPage() {
         </Card>
       </div>
 
-      {/* Quick Launchpad to all 17 Phases */}
+      {/* Quick Launchpad */}
       <div className="space-y-3">
         <h2 className="text-base font-semibold text-slate-200 flex items-center gap-2">
           <Layers className="h-4 w-4 text-cyan-400" />
